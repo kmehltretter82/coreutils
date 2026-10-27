@@ -1709,3 +1709,14 @@ fn test_width_invalid_numbers() {
             .stderr_only(format!("od: {message}\n"));
     }
 }
+
+#[test]
+fn test_large_radix_size_suffixes() {
+    for size in ["01T", "01P", "01E", "01TB", "01PB", "01EB", "0x1T", "0x1P"] {
+        new_ucmd!()
+            .args(&["-An", "-tx1", "-N", size])
+            .pipe_in("ab")
+            .succeeds()
+            .stdout_only(" 61 62\n");
+    }
+}

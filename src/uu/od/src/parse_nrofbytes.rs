@@ -37,17 +37,14 @@ pub fn parse_number_of_bytes(s: &str) -> Result<u64, ParseSizeError> {
             multiply = 1024 * 1024 * 1024;
             len -= 1;
         }
-        #[cfg(target_pointer_width = "64")]
         Some('T') => {
             multiply = 1024 * 1024 * 1024 * 1024;
             len -= 1;
         }
-        #[cfg(target_pointer_width = "64")]
         Some('P') => {
             multiply = 1024 * 1024 * 1024 * 1024 * 1024;
             len -= 1;
         }
-        #[cfg(target_pointer_width = "64")]
         Some('E') if radix != 16 => {
             multiply = 1024 * 1024 * 1024 * 1024 * 1024 * 1024;
             len -= 1;
@@ -58,11 +55,8 @@ pub fn parse_number_of_bytes(s: &str) -> Result<u64, ParseSizeError> {
                 Some('k' | 'K') => 1000,
                 Some('m' | 'M') => 1000 * 1000,
                 Some('G') => 1000 * 1000 * 1000,
-                #[cfg(target_pointer_width = "64")]
                 Some('T') => 1000 * 1000 * 1000 * 1000,
-                #[cfg(target_pointer_width = "64")]
                 Some('P') => 1000 * 1000 * 1000 * 1000 * 1000,
-                #[cfg(target_pointer_width = "64")]
                 Some('E') => 1000 * 1000 * 1000 * 1000 * 1000 * 1000,
                 _ => return Err(ParseSizeError::ParseFailure(s.to_string())),
             }
@@ -99,6 +93,12 @@ fn test_parse_number_of_bytes() {
     assert_eq!(8 * 512, parse_number_of_bytes("010b").unwrap());
     assert_eq!(8 * 1024, parse_number_of_bytes("010k").unwrap());
     assert_eq!(8 * 1_048_576, parse_number_of_bytes("010m").unwrap());
+    assert_eq!(1024_u64.pow(4), parse_number_of_bytes("01T").unwrap());
+    assert_eq!(1024_u64.pow(5), parse_number_of_bytes("01P").unwrap());
+    assert_eq!(1024_u64.pow(6), parse_number_of_bytes("01E").unwrap());
+    assert_eq!(1000_u64.pow(4), parse_number_of_bytes("01TB").unwrap());
+    assert_eq!(1000_u64.pow(5), parse_number_of_bytes("01PB").unwrap());
+    assert_eq!(1000_u64.pow(6), parse_number_of_bytes("01EB").unwrap());
 
     // hex input
     assert_eq!(15, parse_number_of_bytes("0xf").unwrap());
@@ -107,6 +107,8 @@ fn test_parse_number_of_bytes() {
     assert_eq!(27, parse_number_of_bytes("0x1b").unwrap());
     assert_eq!(16 * 1024, parse_number_of_bytes("0x10k").unwrap());
     assert_eq!(16 * 1_048_576, parse_number_of_bytes("0x10m").unwrap());
+    assert_eq!(1024_u64.pow(4), parse_number_of_bytes("0x1T").unwrap());
+    assert_eq!(1024_u64.pow(5), parse_number_of_bytes("0x1P").unwrap());
 }
 
 #[test]
