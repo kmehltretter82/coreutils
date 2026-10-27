@@ -123,8 +123,14 @@ pub fn unblock_signal(signal: RixSignal) -> io::Result<()> {
 /// will return EINVAL otherwise; POSIX only defines it up to 10e8, so we cap
 /// it on all targets we do not trust to support the full integer range.
 #[cfg(not(any(target_os = "fuchsia", target_os = "haiku")))]
+#[allow(deprecated, clippy::unnecessary_cast)]
 const MAX_KTIME_T: Duration = if cfg!(target_os = "linux") {
-    Duration::from_secs(9_223_372_036)
+    let max_secs = libc::time_t::MAX as u64;
+    Duration::from_secs(if max_secs < 9_223_372_036 {
+        max_secs
+    } else {
+        9_223_372_036
+    })
 } else {
     Duration::from_secs(100_000_000)
 };

@@ -193,14 +193,21 @@ fn test_preserve_status_even_when_send_signal() {
 #[test]
 fn test_dont_overflow() {
     let (ts, bin) = scenario_with_bin();
-    ts.ucmd()
-        .args(&["9223372036854775808d", &bin, "sleep", "0"])
-        .succeeds()
-        .no_output();
-    ts.ucmd()
-        .args(&["-k", "9223372036854775808d", "10", &bin, "sleep", "0"])
-        .succeeds()
-        .no_output();
+    for duration in [
+        "2147483648",
+        "4294967295",
+        "4294967296",
+        "9223372036854775808d",
+    ] {
+        ts.ucmd()
+            .args(&[duration, &bin, "sleep", "0"])
+            .succeeds()
+            .no_output();
+        ts.ucmd()
+            .args(&["-k", duration, "10", &bin, "sleep", "0"])
+            .succeeds()
+            .no_output();
+    }
 }
 
 #[test]
